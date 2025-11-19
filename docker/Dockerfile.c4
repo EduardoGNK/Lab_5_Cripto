@@ -1,0 +1,45 @@
+FROM ubuntu:22.10
+
+LABEL maintainer="lab5-team" \
+      description="Contenedor C4/S1 - Ubuntu 22.10 con OpenSSH server"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=Etc/UTC \
+    SSH_USER=prueba \
+    SSH_PASS=prueba
+
+# Configurar repositorios old-releases para Ubuntu EOL
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://old-releases.ubuntu.com/ubuntu|g' /etc/apt/sources.list && \
+    sed -i 's|http://security.ubuntu.com/ubuntu|http://old-releases.ubuntu.com/ubuntu|g' /etc/apt/sources.list
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        openssh-client \
+        openssh-server \
+        tcpdump \
+        iproute2 \
+        ca-certificates \
+        vim-tiny && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /var/run/sshd /root/.ssh /workspace && \
+    useradd -m -s /bin/bash "${SSH_USER}" && \
+    echo "${SSH_USER}:${SSH_PASS}" | chpasswd && \
+    chown -R "${SSH_USER}:${SSH_USER}" /home/"${SSH_USER}" && \
+    chown -R "${SSH_USER}:${SSH_USER}" /workspace
+
+# Configuracion minima y reducir tamaño de KEXINIT a < 300 bytes
+# Copiar archivo de configuración mínima
+COPY docker/sshd_config_minimal /etc/ssh/sshd_config
+RUN chmod 600 /etc/ssh/sshd_config
+
+COPY scripts/bootstrap-ssh.sh /usr/local/bin/bootstrap-ssh.sh
+RUN chmod +x /usr/local/bin/bootstrap-ssh.sh
+
+WORKDIR /workspace
+
+EXPOSE 22
+
+ENTRYPOINT ["/usr/local/bin/bootstrap-ssh.sh"]
+

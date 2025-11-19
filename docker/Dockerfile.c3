@@ -1,0 +1,29 @@
+FROM ubuntu:20.10
+
+LABEL maintainer="lab5-team" \
+      description="Cliente C3 - Ubuntu 20.10 actualizado"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=Etc/UTC
+
+# Configurar repositorios old-releases para Ubuntu EOL
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://old-releases.ubuntu.com/ubuntu|g' /etc/apt/sources.list && \
+    sed -i 's|http://security.ubuntu.com/ubuntu|http://old-releases.ubuntu.com/ubuntu|g' /etc/apt/sources.list
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        openssh-client \
+        tcpdump \
+        iproute2 \
+        ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m analyst && \
+    mkdir -p /workspace /root/.ssh && \
+    chown -R analyst:analyst /workspace
+
+WORKDIR /workspace
+
+CMD ["sleep", "infinity"]
+

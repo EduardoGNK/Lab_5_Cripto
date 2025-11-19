@@ -1,0 +1,36 @@
+# Configuración SSH mínima para KEXINIT < 300 bytes
+# Este archivo reemplaza la configuración por defecto
+
+# Autenticación
+PasswordAuthentication yes
+PubkeyAuthentication no
+HostbasedAuthentication no
+GSSAPIAuthentication no
+GSSAPIKeyExchange no
+UsePAM yes
+
+# Algoritmos mínimos (uno por categoría)
+KexAlgorithms curve25519-sha256@libssh.org
+HostKeyAlgorithms rsa-sha2-256
+Ciphers aes128-ctr
+MACs hmac-sha2-256
+Compression no
+
+# Deshabilitar extensiones y características adicionales
+UseDNS no
+PermitRootLogin yes
+StrictModes no
+
+# Deshabilitar tipos de clave adicionales
+PubkeyAcceptedKeyTypes rsa-sha2-256
+PubkeyAcceptedAlgorithms rsa-sha2-256
+HostbasedAcceptedKeyTypes rsa-sha2-256
+HostbasedAcceptedAlgorithms rsa-sha2-256
+
+# Deshabilitar características que agregan datos al KEXINIT
+RekeyLimit 0
+MaxAuthTries 6
+
+# Logging mínimo
+LogLevel ERROR
+
